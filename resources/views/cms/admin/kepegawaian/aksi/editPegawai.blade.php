@@ -30,8 +30,8 @@
                             ['no_hp', 'No. HP', 'text'],
                             ['alamat', 'Alamat', 'textarea'],
                             ['tgl_masuk', 'Tanggal Masuk', 'date'],
-                            ['jabatan', 'Jabatan', 'text'],
-                            ['divisi', 'Divisi', 'text'],
+                            ['jabatan_id', 'Jabatan', 'relation', $jabatans],
+                            ['divisi_id', 'Divisi', 'relation', $divisi],
                             ['status', 'Status', 'select', ['aktif', 'tidak aktif']],
                         ];
                     @endphp
@@ -46,7 +46,7 @@
                                     <img id="preview-foto"
                                         src="{{ $pegawai->foto ? asset('storage/' . $pegawai->foto) : '' }}"
                                         alt="Preview Foto Pegawai"
-                                        class="w-24 h-24 rounded object-cover {{ $pegawai->foto ? '' : 'hidden' }}">
+                                        class="w-[151px] h-[227px] object-cover {{ $pegawai->foto ? '' : 'hidden' }}">
                                 </div>
                                 <input type="file" name="foto" id="foto" onchange="previewFoto(event)"
                                     class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -61,6 +61,18 @@
                                         <option value="{{ $option }}"
                                             {{ old($field[0], $pegawai->{$field[0]}) == $option ? 'selected' : '' }}>
                                             {{ ucfirst($option) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @elseif ($field[2] === 'relation')
+                                <select name="{{ $field[0] }}" id="{{ $field[0] }}"
+                                    class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    required>
+                                    <option value="">-- Pilih {{ $field[1] }} --</option>
+                                    @foreach ($field[3] as $item)
+                                        <option value="{{ $item->id }}"
+                                            {{ old($field[0], $pegawai->{$field[0]}) == $item->id ? 'selected' : '' }}>
+                                            {{ $item->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -81,12 +93,12 @@
                 {{-- Tombol --}}
                 <div class="mt-10 flex justify-end space-x-4">
                     <a href="{{ route('view-pegawai') }}"
-                        class="inline-block px-6 py-2 rounded-md bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500 transition">
-                        Batal
+                        class="inline-block px-6 py-2 rounded-md bg-red-600 text-white hover:bg-red-400 dark:hover:bg-red-500 transition">
+                        <i class="fas fa-xmark"></i> Batal
                     </a>
                     <button type="submit"
                         class="inline-block px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
-                        Simpan Perubahan
+                        <i class="fas fa-save"></i> Simpan
                     </button>
                 </div>
             </form>

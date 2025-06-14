@@ -13,26 +13,19 @@ class PegawaiSeeder extends Seeder
      */
     public function run(): void
     {
-        Pegawai::create([
-            'nip_pegawai' => '1234567890123456',
-            'nama' => 'Budi Santoso',
-            'tempat_lahir' => 'Jakarta',
-            'tgl_lahir' => '1990-01-01',
+         Pegawai::create([
+            'nip_pegawai' => '1987091520230101',
+            'nama' => 'Ahmad Surya',
+            'foto' => null,
+            'tempat_lahir' => 'Medan',
+            'tgl_lahir' => '1987-09-15',
             'gender' => 'laki-laki',
             'no_hp' => '081234567890',
-            'alamat' => 'Jl. Merdeka No. 1',
-            'tgl_masuk' => '2020-01-01',
-            'jabatan' => 'Manager',
-            'divisi' => 'Keuangan',
+            'alamat' => 'Jl. Mawar No.10, Medan',
+            'tgl_masuk' => '2023-02-01',
+            'jabatan_id' => 1,
+            'divisi_id' => 1,
             'status' => 'aktif',
-            'foto' => $this->generateRandomAvatarUrl()
         ]);
-    }
-
-     private function generateRandomAvatarUrl()
-    {
-        // URL avatar acak dari pravatar.cc, ID 1-70 menghasilkan gambar orang berbeda
-        $randomId = rand(1, 70);
-        return "https://i.pravatar.cc/150?img={$randomId}";
     }
 }

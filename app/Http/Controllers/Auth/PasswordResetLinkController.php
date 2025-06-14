@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\User;
+use Illuminate\View\View;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
 {
@@ -26,19 +27,36 @@ class PasswordResetLinkController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'nip_or_email' => ['required', 'string'],
+        ],[
+            'nip_or_email' => 'NIP atau Email wajib diisi'
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $nipOrEmail = $request->input('nip_or_email');
+
+        // Cek apakah input formatnya email atau NIP
+        if (filter_var($nipOrEmail, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $nipOrEmail)->first();
+            if (!$user) {
+                return back()->withErrors(['nip_or_email' => 'Data Email tidak ditemukan.'])->withInput();
+            }
+            // input email
+            $email = $nipOrEmail;
+        } else {
+            // input NIP, cari email user berdasarkan NIP
+            $user = User::where('nip', $nipOrEmail)->first();
+            if (!$user) {
+                return back()->withErrors(['nip_or_email' => 'Data NIP tidak ditemukan.'])->withInput();
+            }
+            $email = $user->email;
+        }
+                 
+        // Kirim link reset password ke email yang didapat
+        $status = Password::sendResetLink(['email' => $email]);
 
         return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+            ? back()->with('status', 'Link reset password berhasil dikirim. Silakan cek email Anda')
+            : back()->withInput($request->only('nip_or_email'))
+                ->withErrors(['nip_or_email' => __($status)]);
     }
 }

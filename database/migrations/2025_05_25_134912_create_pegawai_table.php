@@ -22,12 +22,14 @@ return new class extends Migration
             $table->string('no_hp', 14)->nullable();
             $table->text('alamat')->nullable();
             $table->date('tgl_masuk')->nullable();
-            $table->string('jabatan')->nullable();
-            $table->string('divisi')->nullable();
+            $table->unsignedBigInteger('jabatan_id')->nullable();
+            $table->unsignedBigInteger('divisi_id')->nullable();
             $table->enum('status', ['aktif', 'tidak aktif'])->nullable();
             $table->timestamps();
 
-            $table->foreign('nip_pegawai')->references('nip')->on('users')->onDelete('cascade');
+            $table->foreign('nip_pegawai')->references('nip')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('jabatan_id')->references('id')->on('jabatans')->onDelete('cascade');
+            $table->foreign('divisi_id')->references('id')->on('divisi')->onDelete('cascade');
         });
     }
 

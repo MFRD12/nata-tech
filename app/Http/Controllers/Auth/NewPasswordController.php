@@ -31,32 +31,42 @@ class NewPasswordController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        'token' => ['required'],
+        'nip_or_email' => ['required', 'string'], // validasi lebih longgar, bisa kamu perketat sesuai format NIP
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+    // Cari user berdasarkan nip atau email
+    $user = User::where('nip', $request->nip_or_email)
+                ->orWhere('email', $request->nip_or_email)
+                ->first();
 
-                event(new PasswordReset($user));
-            }
-        );
+    if (!$user) {
+        return back()->withInput($request->only('nip_or_email'))
+                     ->withErrors(['nip_or_email' => 'User dengan NIP atau Email tidak ditemukan.']);
+    }
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+    // Gunakan email user untuk proses reset password Laravel
+    $status = Password::reset(
+        [
+            'email' => $user->email,
+            'password' => $request->password,
+            'password_confirmation' => $request->password_confirmation,
+            'token' => $request->token,
+        ],
+        function (User $user) use ($request) {
+            $user->forceFill([
+                'password' => Hash::make($request->password),
+                'remember_token' => Str::random(60),
+            ])->save();
+
+            event(new PasswordReset($user));
+        }
+    );
+
+    return $status == Password::PASSWORD_RESET
+                ? redirect()->route('login')->with('status', 'Password Berhasil dirubah')
+                : back()->withInput($request->only('nip_or_email'))
+                      ->withErrors(['nip_or_email' => __($status)]);
     }
 }

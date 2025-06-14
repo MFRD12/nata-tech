@@ -28,21 +28,21 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         // Cek apakah user punya data pegawai dan status tidak aktif
-    if ($user->pegawai && $user->pegawai->status === 'tidak aktif') {
-        // Hapus session lebih dulu
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if ($user->pegawai && $user->pegawai->status === 'tidak aktif') {
+            // Hapus session lebih dulu
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        Auth::logout(); // Logout setelah session dihapus
+            Auth::logout(); // Logout setelah session dihapus
 
-        return redirect()->back()->withErrors([
-            'nip' => 'Akun Anda tidak aktif. Silakan hubungi admin.',
-        ]);
-    }
+            return redirect()->back()->withErrors([
+                'nip_or_email' => 'Akun Anda tidak aktif, Silakan hubungi admin.',
+            ]);
+        }
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route('view-pilih-role');
     }
 
     /**
@@ -52,10 +52,12 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
+         $request->session()->forget('active_role');
+
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

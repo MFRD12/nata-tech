@@ -1,0 +1,22 @@
+[x-cloak] {
+     display: none !important;
+    }
+
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: #3b82f6;
+    z-index: 9999;
+    transition: width 0.3s;
+}
+
+.theme-dark .page-loading {
+    background-color: #121317;
+}
+
+.page-loading {
+    background-color: #f9fafb;
+}

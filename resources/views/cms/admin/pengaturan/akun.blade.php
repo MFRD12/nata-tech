@@ -1,323 +1,398 @@
 <x-app-layout>
     @section('title', 'Pengaturan Akun')
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 tracking-tight">Pengaturan Akun</h1>
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
 
-        @if (session('success'))
-            <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 2000)" x-show="show" x-transition
-                class="bg-green-100 text-green-800 p-3 rounded mb-4 text-sm">
-                {{ session('success') }}
-            </div>
-        @endif
+            <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 tracking-tight">Pengaturan Akun</h1>
 
-        <form method="GET" action="{{ route('view-akun') }}" class="mb-6 space-y-4 md:space-y-0">
-            <!-- Tambah button mobile -->
-            <div class="mb-6 space-y-4 md:space-y-0">
-                <div class="md:hidden">
-                    <a href="{{ route('view-akun', ['modal' => 'tambah', 'page' => request('page')]) }}"
-                        class="w-full block text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm shadow">
-                        + Tambah
-                    </a>
-                </div>
-
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto md:flex-1">
-                        <!-- Search -->
-                        <input type="text" id="search-input" name="search" value="{{ request('search') }}"
-                            placeholder="Cari Nama, NIP, atau Email"
-                            class="w-full sm:w-64 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm">
-
-                        <!-- Filter Role -->
-                        <select name="role" onchange="this.form.submit()"
-                            class="w-full sm:w-52 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm">
-                            <option value="">-- Filter berdasarkan role --</option>
-                            @foreach ($roles as $role)
-                                <option value="{{ $role->name }}"
-                                    {{ request('role') === $role->name ? 'selected' : '' }}>
-                                    {{ ucfirst($role->name) }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <!-- Reset -->
-                        @if (request('search') || request('role'))
-                            <a href="{{ route('view-akun') }}"
-                                class="inline-flex items-center justify-center bg-red-500 text-gray-200 hover:bg-red-600 px-4 py-2 rounded text-sm shadow-sm transition">
-                                Reset
-                            </a>
-                        @endif
-                    </div>
-
-                    <!-- Tambah button -->
-                    <div class="hidden md:block">
-                        <a href="{{ route('view-akun', ['modal' => 'tambah', 'page' => request('page')]) }}"
-                            class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm shadow">
-                            + Tambah
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </form>
-
-        <!-- Tabel Akun -->
-        <div class="overflow-x-auto no-scrollbar rounded-lg shadow ring-1 ring-black ring-opacity-5">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr class="text-gray-700 dark:text-gray-300 text-left">
-                        <th class="px-4 py-3 font-semibold">No</th>
-                        <th class="px-4 py-3 font-semibold">Nama</th>
-                        <th class="px-4 py-3 font-semibold">NIP</th>
-                        <th class="px-4 py-3 font-semibold">Email</th>
-                        <th class="px-4 py-3 font-semibold">Role</th>
-                        <th class="px-4 py-3 font-semibold text-center sticky right-0 bg-gray-50 dark:bg-gray-700 z-5">
-                            Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                    @foreach ($users as $user)
-                        <tr class="hover:bg-gray-100 dark:hover:bg-gray-800">
-                            <td class="px-4 py-3 text-center text-gray-800 dark:text-gray-200">
-                                {{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
-                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">
-                                {{ $user->pegawai ? $user->pegawai->nama : '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">{{ $user->nip }}</td>
-                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">{{ $user->email }}</td>
-                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">
-                                <div class="flex flex-wrap gap-2">
-                                    @foreach ($user->roles as $role)
-                                        @php
-                                            $colorMap = [
-                                                'super admin' => 'bg-red-600',
-                                                'hrd' => 'bg-orange-600',
-                                                'keuangan' => 'bg-blue-600',
-                                                'pegawai' => 'bg-green-600',
-                                                'kontributor' => 'bg-purple-600',
-                                            ];
-                                            $color = $colorMap[$role->name] ?? 'bg-gray-300 text-gray-700';
-                                        @endphp
-                                        <span
-                                            class="inline-block {{ $color }} text-white px-2 py-1 rounded text-xs font-semibold mr-1">
-                                            {{ ucfirst($role->name) }}
-                                        </span>
-                                    @endforeach
-                                </div>
-                            </td>
-                            <td class="px-4 py-2 text-center sticky right-0 bg-white dark:bg-gray-900 z-5">
-                                <a href="{{ route('view-akun', ['modal' => 'edit', 'user' => $user->id, 'search' => request('search'), 'role' => request('role'), 'page' => request('page')]) }}"
-                                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-xs font-medium shadow-sm">
-                                    Edit
-                                </a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        {{-- Pagination --}}
-        @php
-            $currentPage = $users->currentPage();
-            $lastPage = $users->lastPage();
-            $start = max($currentPage - 1, 2);
-            $end = min($currentPage + 1, $lastPage - 1);
-        @endphp
-
-        <div
-            class="flex flex-col md:flex-row justify-between items-start md:items-center mt-4 text-sm text-gray-700 dark:text-gray-300 space-y-2 md:space-y-0">
-            <div>
-                Tampil {{ $users->firstItem() }} sampai {{ $users->lastItem() }} dari {{ $users->total() }} data
-            </div>
-
-            @if ($lastPage > 1)
-                <div class="flex items-center space-x-1">
-                    {{-- Previous --}}
-                    @if ($users->onFirstPage())
-                        <span
-                            class="px-3 py-1 rounded border bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 cursor-not-allowed">
-                            &lt;
-                        </span>
-                    @else
-                        <a href="{{ $users->previousPageUrl() }}"
-                            class="px-3 py-1 rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600">
-                            &lt;
-                        </a>
-                    @endif
-
-                    {{-- First page --}}
-                    <a href="{{ $users->url(1) }}"
-                        class="px-3 py-1 rounded border {{ $currentPage == 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600' }}">
-                        1
-                    </a>
-
-                    {{-- Ellipsis before --}}
-                    @if ($start > 2)
-                        <span class="px-2 text-gray-500 dark:text-gray-400">...</span>
-                    @endif
-
-                    {{-- Page range --}}
-                    @for ($i = $start; $i <= $end; $i++)
-                        <a href="{{ $users->url($i) }}"
-                            class="px-3 py-1 rounded border {{ $currentPage == $i ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600' }}">
-                            {{ $i }}
-                        </a>
-                    @endfor
-
-                    {{-- Ellipsis after --}}
-                    @if ($end < $lastPage - 1)
-                        <span class="px-2 text-gray-500 dark:text-gray-400">...</span>
-                    @endif
-
-                    {{-- Last page --}}
-                    @if ($lastPage > 1)
-                        <a href="{{ $users->url($lastPage) }}"
-                            class="px-3 py-1 rounded border {{ $currentPage == $lastPage ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600' }}">
-                            {{ $lastPage }}
-                        </a>
-                    @endif
-
-                    {{-- Next --}}
-                    @if ($users->hasMorePages())
-                        <a href="{{ $users->nextPageUrl() }}"
-                            class="px-3 py-1 rounded border bg-white text-gray-700 border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600">
-                            &gt;
-                        </a>
-                    @else
-                        <span
-                            class="px-3 py-1 rounded border bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 cursor-not-allowed">
-                            &gt;
-                        </span>
-                    @endif
-                </div>
+            @if (session('success'))
+                <x-alert type="success" :message="session('success')" :duration="3000" />
             @endif
-        </div>
 
+            @if (session('error'))
+                <x-alert type="error" :message="session('error')" :duration="3000" :title="'Update Gagal!'" />
+            @endif
 
-        <!-- Modal Tambah Akun -->
-        @if (request('modal') === 'tambah' || $errors->any())
-            <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
-                <div
-                    class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-xl shadow-lg w-full max-w-xl p-6">
-                    <form method="POST" action="{{ route('tambah-akun') }}">
-                        @csrf
-                        <input type="hidden" name="page" value="{{ request('page') }}">
-                        <h3 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Tambah Akun</h3>
+            <!-- Modal Tambah Akun dengan logika error handling -->
+            <div x-data="{
+                showModal: false,
+                showError: @if ($errors->any() && old('form_context') === 'add_akun') true @else false @endif,
+                clearInput() {
+                    document.getElementById('add_nip').value = '';
+                    document.getElementById('add_email').value = '';
+                    document.getElementById('add_password').value = '';
+                    const checkboxes = document.querySelectorAll('input[name=\'add_roles[]\']');
+                    checkboxes.forEach(checkbox => checkbox.checked = false);
+                    this.showError = false;
+                }
+            }" x-init="@if($errors->any() && old('form_context') === 'add_akun')
+            showModal = true;
+            @endif">
 
-                        <div class="space-y-4">
-
-                            <input name="nip" maxlength="16" placeholder="NIP"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ old('nip') }}" required>
-                            <x-input-error :messages="$errors->get('nip')" class="mt-1" />
-
-                            <input name="email" type="email" placeholder="Email"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ old('email') }}" required>
-                            <x-input-error :messages="$errors->get('email')" class="mt-1" />
-
-                            <input name="password" type="password" autocomplete="new-password" placeholder="Password"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required>
-                            <x-input-error :messages="$errors->get('password')" class="mt-1" />
-
+                <!-- Form Filter dan Tambah Button -->
+                <form method="GET" action="{{ route('view-akun') }}" class="mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto md:flex-1">
                             <div>
-                                <label class="block font-semibold mb-2">Role:</label>
-                                <div class="flex flex-wrap gap-3">
-                                    @foreach ($roles as $role)
-                                        <label class="inline-flex items-center space-x-2">
-                                            <input type="checkbox" name="roles[]" value="{{ $role->name }}"
-                                                class="text-blue-500 dark:text-blue-400"
-                                                {{ is_array(old('roles')) && in_array($role->name, old('roles')) ? 'checked' : '' }}>
-                                            <span>{{ ucfirst($role->name) }}</span>
-                                        </label>
+                                <select name="perPage" onchange="this.form.submit()"
+                                    class=" w-16 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm">
+                                    @foreach ([10, 20, 50, 100] as $size)
+                                        <option value="{{ $size }}"
+                                            {{ request('perPage', 10) == $size ? 'selected' : '' }}>
+                                            {{ $size }}
+                                        </option>
                                     @endforeach
-                                </div>
-                                <x-input-error :messages="$errors->get('roles')" class="mt-1" />
+                                </select>
                             </div>
-                        </div>
+                            <!-- Search -->
+                            <input type="text" id="search-input" name="search" value="{{ request('search') }}"
+                                placeholder="Cari Nama, NIP, atau Email"
+                                class="w-full sm:w-64 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm">
 
-                        <div class="mt-6 flex justify-end space-x-2">
-                            <a href="{{ route('view-akun', request()->only(['search', 'role', 'page'])) }}"
-                                class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm">Batal</a>
-                            <button type="submit"
-                                class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        @endif
+                            <!-- Filter Role -->
+                            <select name="role" onchange="this.form.submit()"
+                                class="w-full sm:w-52 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm">
+                                <option value="">-- Filter berdasarkan role --</option>
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->name }}"
+                                        {{ request('role') === $role->name ? 'selected' : '' }}>
+                                        {{ ucfirst($role->name) }}
+                                    </option>
+                                @endforeach
+                            </select>
 
-        <!-- Modal Edit Error -->
-        @if (request('modal') === 'edit' && request('user') && !$editUser)
-            <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
-                <div
-                    class="bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 rounded-xl shadow-lg w-full max-w-md p-6 text-center">
-                    <h3 class="text-xl font-semibold mb-4">Error</h3>
-                    <p>Akun tidak ditemukan dalam daftar.</p>
-                    <div class="mt-6">
-                        <a href="{{ route('view-akun') }}"
-                            class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm">Tutup</a>
+                            <!-- Reset -->
+                            @if (request('search') || request('role'))
+                                <a href="{{ route('view-akun',['perPage' => request('perPage', 10)]) }}"
+                                    class="inline-flex items-center justify-center bg-red-500 text-gray-200 hover:bg-red-600 px-4 py-2 rounded text-sm shadow-sm transition">
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
+                        <!-- Tambah button desktop -->
+                        <div class="flex justify-end md:justify-start">
+                            <button type="button" @click="showModal = true"
+                                class="w-full md:w-auto bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-sm shadow">
+                                <i class="fas fa-plus"></i> Tambah
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </div>
-        @endif
+                </form>
 
-        <!-- Modal Edit Akun -->
-        @if (request('modal') === 'edit' && $editUser)
-            <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
-                <div
-                    class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-xl shadow-lg w-full max-w-xl p-6">
-                    <form method="POST" action="{{ route('update-akun', $editUser->id) }}">
-                        @csrf
-                        <h3 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Edit Akun</h3>
+                <!-- Modal Tambah Akun -->
+                <div x-show="showModal"
+                    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 px-4">
+                    <div @click.away="showModal = false; clearInput()"
+                        class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-xl shadow-lg relative overflow-auto max-h-[90vh]">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Tambah Akun</h2>
 
-                        <div class="space-y-4">
+                        <form action="{{ route('tambah-akun') }}" method="POST" class="space-y-4">
+                            @csrf
+                            <input type="hidden" name="form_context" value="add_akun">
                             <input type="hidden" name="search" value="{{ request('search') }}">
                             <input type="hidden" name="role" value="{{ request('role') }}">
                             <input type="hidden" name="page" value="{{ request('page') }}">
-
-                            <input name="nip"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                value="{{ old('nip', $editUser->nip) }}" required>
-                            <x-input-error :messages="$errors->get('nip')" class="mt-1" />
-
-                            <input name="email" type="email"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                value="{{ old('email', $editUser->email) }}" required>
-                            <x-input-error :messages="$errors->get('email')" class="mt-1" />
-
-                            <input name="password" type="password" placeholder="Password (kosongkan jika tidak ubah)"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <x-input-error :messages="$errors->get('password')" class="mt-1" />
-
-                            <input name="password_confirmation" type="password" placeholder="Konfirmasi Password"
-                                class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <input type="hidden" name="perPage" value="{{ request('perPage', 10) }}">
 
                             <div>
-                                <label class="block font-semibold mb-2">Role:</label>
+                                <label for="add_nip"
+                                    class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200">NIP</label>
+                                <input type="text" name="nip" id="add_nip" maxlength="16"
+                                    value="{{ old('form_context') === 'add_akun' ? old('nip') : '' }}" required
+                                    :class="(showError && '{{ old('form_context') === 'add_akun' && $errors->has('nip') }}') ?
+                                    'border-red-500 focus:border-red-500 focus:ring-red-500' :
+                                    'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'"
+                                    class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring">
+
+                                <div x-show="showError && '{{ old('form_context') === 'add_akun' && $errors->has('nip') }}'"
+                                    class="mt-2">
+                                    <x-input-error :messages="$errors->get('nip')" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="add_email"
+                                    class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
+                                <input type="email" name="email" id="add_email"
+                                    value="{{ old('form_context') === 'add_akun' ? old('email') : '' }}" required
+                                    :class="(showError &&
+                                        '{{ old('form_context') === 'add_akun' && $errors->has('email') }}') ?
+                                    'border-red-500 focus:border-red-500 focus:ring-red-500' :
+                                    'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'"
+                                    class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring">
+
+                                <div x-show="showError && '{{ old('form_context') === 'add_akun' && $errors->has('email') }}'"
+                                    class="mt-2">
+                                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="add_password"
+                                    class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200">Password</label>
+                                <input type="password" name="password" id="add_password" autocomplete="new-password"
+                                    required
+                                    :class="(showError &&
+                                        '{{ old('form_context') === 'add_akun' && $errors->has('password') }}') ?
+                                    'border-red-500 focus:border-red-500 focus:ring-red-500' :
+                                    'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'"
+                                    class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring">
+
+                                <div x-show="showError && '{{ old('form_context') === 'add_akun' && $errors->has('password') }}'"
+                                    class="mt-2">
+                                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200">Role:</label>
                                 <div class="flex flex-wrap gap-3">
                                     @foreach ($roles as $role)
-                                        <label class="inline-flex items-center space-x-2">
+                                        <label class="inline-flex items-center space-x-2"
+                                            @if (old('form_context') === 'add_akun' && $errors->has('roles')) text-red-500 dark:text-red-400 @endif">
                                             <input type="checkbox" name="roles[]" value="{{ $role->name }}"
-                                                class="text-green-600 dark:text-green-400"
-                                                {{ $editUser->roles->pluck('name')->contains($role->name) ? 'checked' : '' }}>
-                                            <span>{{ ucfirst($role->name) }}</span>
+                                                id="add_role_{{ $role->id }}"
+                                                class="text-blue-500 dark:text-blue-400"
+                                                {{ old('form_context') === 'add_akun' && is_array(old('roles')) && in_array($role->name, old('roles')) ? 'checked' : '' }}>
+                                            <span
+                                                class="text-gray-700 dark:text-gray-200">{{ ucfirst($role->name) }}</span>
                                         </label>
                                     @endforeach
                                 </div>
-                                <x-input-error :messages="$errors->get('roles')" class="mt-1" />
+                                <div x-show="showError && '{{ old('form_context') === 'add_akun' && $errors->has('roles') }}'"
+                                    class="mt-2">
+                                    <x-input-error :messages="$errors->get('roles')" class="mt-2" />
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mt-6 flex justify-end space-x-2">
-                            <a href="{{ route('view-akun', request()->only(['search', 'role', 'page'])) }}"
-                                class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm">Batal</a>
-                            <button type="submit"
-                                class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm">Update</button>
-                        </div>
-                    </form>
+                            <div class="flex justify-end gap-3 mt-4">
+                                <button type="button" @click="showModal = false; clearInput()"
+                                    class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-700 transition">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                    Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        @endif
 
+            <!-- Tabel Akun -->
+            <div
+                class="overflow-x-auto no-scrollbar rounded-lg shadow ring-1 ring-black ring-opacity-5 border border-gray-200 dark:border-gray-700">
+                <table class="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-700 text-center">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr class="text-gray-700 dark:text-gray-300 divide-x divide-gray-200 dark:divide-gray-700">
+                            <th class="px-4 py-3 font-semibold">No</th>
+                            <th class="px-4 py-3 font-semibold">Nama</th>
+                            <th class="px-4 py-3 font-semibold">NIP</th>
+                            <th class="px-4 py-3 font-semibold">Email</th>
+                            <th class="px-4 py-3 font-semibold">Role</th>
+                            <th class="px-4 py-3 font-semibold text-center bg-gray-50 dark:bg-gray-700 z-5">
+                                Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        @forelse ($users as $user)
+                            <tr
+                                class="hover:bg-gray-100 dark:hover:bg-gray-800 divide-x divide-gray-200 dark:divide-gray-700">
+                                <td class="px-4 py-3 text-center text-gray-800 dark:text-gray-200">
+                                    {{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}
+                                </td>
+                                <td
+                                    class="px-4 py-3 text-gray-800 dark:text-gray-200 text-left whitespace-nowrap sm:whitespace-normal">
+                                    {{ $user->pegawai ? $user->pegawai->nama : '-' }}
+                                </td>
+                                <td class="px-4 py-3 text-gray-800 dark:text-gray-200">{{ $user->nip }}</td>
+                                <td class="px-4 py-3 text-gray-800 dark:text-gray-200">{{ $user->email }}</td>
+                                <td class="px-4 py-3 text-gray-800 dark:text-gray-200">
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach ($user->roles as $role)
+                                            @php
+                                                $colorMap = [
+                                                    'super admin' => 'bg-red-600',
+                                                    'hrd' => 'bg-orange-600',
+                                                    'keuangan' => 'bg-blue-600',
+                                                    'pegawai' => 'bg-green-600',
+                                                    'kontributor' => 'bg-purple-600',
+                                                ];
+                                                $color = $colorMap[$role->name] ?? 'bg-gray-300 text-gray-700';
+                                            @endphp
+                                            <span
+                                                class="inline-block {{ $color }} text-white px-2 py-1 rounded text-xs font-semibold mr-1">
+                                                {{ ucfirst($role->name) }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2 text-center bg-white dark:bg-gray-900 z-5">
+                                    <!-- Modal Edit dengan logika error handling per user -->
+                                    <div x-data="{
+                                        showModalEdit: false,
+                                        showErrorEdit: @if ($errors->any() && old('form_context') === 'update_akun_' . $user->id) true @else false @endif,
+                                        clearEditError() {
+                                            this.showErrorEdit = false;
+                                        },
+                                        openEditModal() {
+                                            this.$refs.dataNip.value = '{{ $user->nip }}';
+                                            this.$refs.dataEmail.value = '{{ $user->email }}';
+                                    
+                                            this.showModalEdit = true;
+                                        }
+                                    }" x-init="@if ($errors->any() && old('form_context') === 'update_akun_' . $user->id) showModalEdit = true; @endif">
+
+                                        <button @click="openEditModal()"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-xs font-medium shadow-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
+                                        <!-- Modal Edit Akun -->
+                                        <div x-show="showModalEdit"
+                                            class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 px-4">
+                                            <div @click.away="showModalEdit = false; clearEditError()"
+                                                class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-xl shadow-lg relative overflow-auto max-h-[90vh]">
+                                                <h2
+                                                    class="text-xl font-bold text-gray-800 dark:text-white mb-4 text-left">
+                                                    Edit Akun</h2>
+
+                                                <form action="{{ route('update-akun', $user->id) }}" method="POST"
+                                                    class="space-y-4">
+                                                    @csrf
+                                                    @method('POST')
+
+                                                    <input type="hidden" name="form_context"
+                                                        value="update_akun_{{ $user->id }}">
+                                                    <input type="hidden" name="search"
+                                                        value="{{ request('search') }}">
+                                                    <input type="hidden" name="role"
+                                                        value="{{ request('role') }}">
+                                                    <input type="hidden" name="page"
+                                                        value="{{ request('page') }}">
+                                                    <input type="hidden" name="perPage"
+                                                        value="{{ request('perPage', 10) }}">
+
+                                                    <div>
+                                                        <label for="edit_nip_{{ $user->id }}"
+                                                            class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200 text-left">NIP</label>
+                                                        <input type="text" name="nip" x-ref="dataNip"
+                                                            id="edit_nip_{{ $user->id }}" maxlength="16"
+                                                            value="{{ old('form_context') === 'update_akun_' . $user->id && $errors->any() ? old('nip') : $user->nip }}"
+                                                            required
+                                                            :class="(showErrorEdit &&
+                                                                '{{ old('form_context') === 'update_akun_' . $user->id && $errors->has('nip') }}'
+                                                            ) ?
+                                                            'border-red-500 focus:border-red-500 focus:ring-red-500' :
+                                                            'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'"
+                                                            class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring">
+
+                                                        <div x-show="showErrorEdit && '{{ old('form_context') === 'update_akun_' . $user->id && $errors->has('nip') }}'"
+                                                            class="mt-2">
+                                                            <x-input-error :messages="$errors->get('nip')" class="mt-2" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label for="edit_email_{{ $user->id }}"
+                                                            class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200 text-left">Email</label>
+                                                        <input type="email" name="email" x-ref="dataEmail"
+                                                            id="edit_email_{{ $user->id }}"
+                                                            value="{{ old('form_context') === 'update_akun_' . $user->id && $errors->any() ? old('email') : $user->email }}"
+                                                            required
+                                                            :class="(showErrorEdit &&
+                                                                '{{ old('form_context') === 'update_akun_' . $user->id && $errors->has('email') }}'
+                                                            ) ?
+                                                            'border-red-500 focus:border-red-500 focus:ring-red-500' :
+                                                            'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'"
+                                                            class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring">
+
+                                                        <div x-show="showErrorEdit && '{{ old('form_context') === 'update_akun_' . $user->id && $errors->has('email') }}'"
+                                                            class="mt-2">
+                                                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div>
+                                                        <label for="edit_password_{{ $user->id }}"
+                                                            class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200 text-left">Password</label>
+                                                        <input type="password" name="password"
+                                                            id="edit_password_{{ $user->id }}"
+                                                            placeholder="Password (kosongkan jika tidak ubah)"
+                                                            class="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring">
+
+                                                        <label for="edit_password_confirmation_{{ $user->id }}"
+                                                            class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200 text-left mt-4">Konfirmasi
+                                                            Password</label>
+                                                        <input type="password" name="password_confirmation"
+                                                            id="edit_password_confirmation_{{ $user->id }}"
+                                                            placeholder="Konfirmasi Password"
+                                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring focus:border-blue-500 focus:ring-blue-500">
+
+                                                        <div x-show="showErrorEdit && '{{ old('form_context') === 'update_akun_' . $user->id && $errors->has('password') }}'"
+                                                            class="mt-2">
+                                                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div>
+                                                        <label
+                                                            class="block py-2 text-sm font-medium text-gray-700 dark:text-gray-200 text-left">Role:</label>
+                                                        <div class="flex flex-wrap gap-3">
+                                                            @foreach ($roles as $role)
+                                                                <label class="inline-flex items-center space-x-2"
+                                                                    @if (old('form_context') === 'update_akun_' . $user->id && $errors->has('roles')) text-red-500 dark:text-red-400 @endif>
+                                                                    <input type="checkbox" name="roles[]"
+                                                                        id="edit_role_{{ $user->id }}_{{ $role->id }}"
+                                                                        value="{{ $role->name }}"
+                                                                        class="text-blue-500 dark:text-blue-400"
+                                                                        @if (old('form_context') === 'update_akun_' . $user->id && $errors->any()) {{ is_array(old('roles')) && in_array($role->name, old('roles')) ? 'checked' : '' }}
+                                                                        @else
+                                                                            {{ $user->roles->pluck('name')->contains($role->name) ? 'checked' : '' }} @endif>
+                                                                    <span
+                                                                        class="text-gray-700 dark:text-gray-200">{{ ucfirst($role->name) }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                        <div x-show="showErrorEdit && '{{ old('form_context') === 'update_akun_' . $user->id && $errors->has('roles') }}'"
+                                                            class="mt-2">
+                                                            <x-input-error :messages="$errors->get('roles')" class="mt-2" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex justify-end gap-3 mt-4">
+                                                        <button type="button"
+                                                            @click="showModalEdit = false; clearEditError()"
+                                                            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-700 transition">
+                                                            Batal
+                                                        </button>
+                                                        <button type="submit"
+                                                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                                            Update
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-4 py-5 text-center text-gray-500 dark:text-gray-400">
+                                    Tidak ada data akun yang ditemukan.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            {{-- Pagination --}}
+            <x-pagination-links :paginator="$users" />
+        </div>
+    </div>
 </x-app-layout>

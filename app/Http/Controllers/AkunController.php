@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
@@ -33,21 +34,17 @@ class akunController extends Controller
             });
         }
 
-        $users = $usersList->paginate(5)->withQueryString();
+        $perPage = $request->input('perPage', 10);
+        $users = $usersList->paginate($perPage)->withQueryString();
         $roles = Role::all();
 
-        // ambil user yang akan diedit (jika modal edit terbuka)
-        $editUser = null;
-        if ($request->filled('modal') && $request->modal === 'edit' && $request->filled('user')) {
-            $editUser = User::with('roles', 'pegawai')->find($request->user);
-        }
-
-        return view('cms.admin.pengaturan.akun', compact('users', 'roles', 'editUser'));
+        return view('cms.admin.pengaturan.akun', compact('users', 'roles'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
+            'form_context' => 'required|string|in:add_akun',
             'nip' => 'required|unique:users,nip',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
@@ -68,7 +65,10 @@ class akunController extends Controller
         $user->assignRole($request->roles);
 
         return redirect()->route('view-akun', [
-            'page' => $request->page
+            'search' => $request->search,
+            'role' => $request->role,
+            'page' => $request->page,
+            'perPage' => $request->perPage
         ])->with('success', 'Akun berhasil ditambahkan.');
     }
 
@@ -77,9 +77,10 @@ class akunController extends Controller
         $user = User::findOrFail($id);
 
         $rules = [
+            'form_context' => 'required|string|in:update_akun_' . $user->id,
             'nip' => 'required|unique:users,nip,' . $user->id,
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'roles' => 'required|array|'
+            'roles' => 'required|array'
         ];
 
         if ($request->filled('password')) {
@@ -103,12 +104,26 @@ class akunController extends Controller
             $user->update(['password' => Hash::make($request->password)]);
         }
 
+        // Cegah user menghapus role super admin dari akun sendiri
+        if (Auth::user()->id == $user->id && !in_array('super admin', $request->roles)) {
+            return back()->with('error', 'Dilarang menghapus role super admin dari akunmu sendiri.');
+        }
+
+        // CEGAH semau role super admin hilang
+        if ($user->hasRole('super admin')) {
+            $superAdminCount = User::role('super admin')->count();
+            if ($superAdminCount <= 1 && !in_array('super admin', $request->roles)) {
+                return back()->with('error', 'Minimal harus ada satu akun dengan role super admin.');
+            }
+        }
+
         $user->syncRoles($request->roles);
 
         return redirect()->route('view-akun', [
             'search' => $request->search,
             'role' => $request->role,
-            'page' => $request->page
+            'page' => $request->page,
+            'perPage' => $request->perPage
         ])->with('success', 'Akun berhasil diupdate.');
     }
 
