@@ -1,61 +1,110 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel Logo" width="100">
 </p>
 
-## About Laravel
+<h1 align="center">SIM Kepegawaian & Keuangan</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  Aplikasi web berbasis Laravel untuk mengelola data kepegawaian dan transaksi keuangan secara efisien dan terpusat.
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/Laravel-12.x-red?style=flat&logo=laravel" alt="Laravel"></a>
+  <a href="#"><img src="https://img.shields.io/badge/PHP-8.2-blue?style=flat&logo=php" alt="PHP"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Tailwind_CSS-3.x-38b2ac?style=flat&logo=tailwind-css" alt="Tailwind CSS"></a>
+  <a href="#"><img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="MIT License"></a>
+</p>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📘 Deskripsi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**SIM Kepegawaian & Keuangan** adalah sistem manajemen berbasis web untuk membantu mengelola data pegawai, absensi, serta transaksi keuangan dalam satu platform. Aplikasi ini dirancang dengan pendekatan modular dan fleksibel untuk berbagai kebutuhan organisasi.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ✨ Fitur Utama
 
-## Laravel Sponsors
+- Multi-role user: Super Admin, HRD, Keuangan, dan Pegawai
+- Pengelolaan akun & data pegawai
+- Absensi masuk & pulang
+- Manajemen transaksi pemasukan & pengeluaran
+- Filter laporan berdasarkan kategori, waktu, dan nominal
+- Export laporan ke PDF dan Excel
+- Tampilan responsif + mode gelap
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## ⚙️ Teknologi Digunakan
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Laravel 12
+- PHP 8.2
+- Laravel Breeze + Tailwind CSS
+- Spatie Laravel Permission (`^6.18`)
+- Barryvdh Laravel DOMPDF (`^3.1`)
+- Maatwebsite Laravel Excel (`^3.1`)
+- Laravel Tinker
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📦 Kebutuhan Sistem
 
-## Code of Conduct
+- PHP ^8.2
+- Composer
+- Node.js & NPM
+- MySQL
+- Git Bash atau Terminal
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🚀 Instalasi & Menjalankan Aplikasi
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
 
-## License
+```bash
+# 1. Clone repositori
+git clone https://github.com/MFRD12/nata-tech.git
+cd nata-tech
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 2. Install dependency
+composer install
+npm install
+
+# 3. Salin file .env
+cp .env.example .env
+
+# 4. Konfigurasi file .env (sesuaikan dengan database lokal)
+# Contoh konfigurasi:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=sim
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# Optional: konfigurasi email (jika diperlukan)
+# MAIL_MAILER=log
+# MAIL_HOST=127.0.0.1
+# MAIL_PORT=2525
+# MAIL_USERNAME=null
+# MAIL_PASSWORD=null
+# MAIL_FROM_ADDRESS="hello@example.com"
+# MAIL_FROM_NAME="${APP_NAME}"
+
+# 5. Generate app key
+php artisan key:generate
+
+# 6. Migrasi dan seed database
+php artisan migrate --seed
+
+# 7. Kompilasi asset frontend
+npm run dev
+
+# 8. Jalankan server
+php artisan serve
+
+# 8. Jalankan server (optional)
+composer run dev
+
+
+
