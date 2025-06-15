@@ -16,6 +16,16 @@ function data() {
     window.localStorage.setItem('dark', value)
   }
 
+   function getSidebarStateFromLocalStorage() {
+    if (window.localStorage.getItem('isDesktopSidebarCollapsed')) {
+      return JSON.parse(window.localStorage.getItem('isDesktopSidebarCollapsed'))
+    }
+    return false
+  }
+  function setSidebarStateToLocalStorage(value) {
+    window.localStorage.setItem('isDesktopSidebarCollapsed', value)
+  }
+  
   return {
     dark: getThemeFromLocalStorage(),
     toggleTheme() {
@@ -42,6 +52,11 @@ function data() {
     },
     closeProfileMenu() {
       this.isProfileMenuOpen = false
+    },
+    isDesktopSidebarCollapsed: getSidebarStateFromLocalStorage(),
+    toggleDesktopSidebar() {
+      this.isDesktopSidebarCollapsed = !this.isDesktopSidebarCollapsed;
+      setSidebarStateToLocalStorage(this.isDesktopSidebarCollapsed);
     },
     isPagesMenuOpen: false,
     togglePagesMenu() {

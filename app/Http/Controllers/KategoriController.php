@@ -79,7 +79,7 @@ class KategoriController extends Controller
         $jumlahTransaksi = Transaksi::where('kategori_id', $kategori->id)->count();
 
         if ($jumlahTransaksi > 0) {
-            return redirect()->route('view-kategori')->with('error', 'Kategori tidak dapat dihapus karena masih digunakan pada data transaksi.');
+            return redirect()->route('view-kategori')->with('error_hapus', 'Kategori tidak dapat dihapus karena masih digunakan pada data transaksi.');
         }
 
         $kategori->delete();

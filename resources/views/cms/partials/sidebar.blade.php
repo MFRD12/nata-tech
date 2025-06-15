@@ -1,11 +1,14 @@
 @php
     $activeRole = session('active_role');
 @endphp
-<aside class="z-20 hidden w-64 overflow-y-auto no-scrollbar bg-white dark:bg-gray-800 md:block flex-shrink-0"
-    id="sidebar">
+<aside
+    class="hidden fixed h-full z-30 flex-shrink-0 w-64 overflow-y-auto no-scrollbar bg-white dark:bg-gray-800 md:block"
+    id="sidebar" x-show="!isDesktopSidebarCollapsed" x-transition:enter="transition-all ease-in-out duration-300"
+    x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition-all ease-in-out duration-300" x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full">
     <div class="py-4 text-gray-500 dark:text-gray-400">
-        <a class="ml-6 flex items-center space-x-2 text-lg font-bold text-gray-800 dark:text-gray-200"
-            href="{{ route('dashboard') }}">
+        <a class="ml-6 flex items-center space-x-2 text-lg font-bold text-gray-800 dark:text-gray-200" href="">
             <img src="{{ asset('images/nata-logo1.png') }}" alt="" class="w-10 h-10 mr-3"> <span>SIM NATA</span>
         </a>
         @if (in_array($activeRole, ['super admin', 'hrd', 'keuangan']))
@@ -32,33 +35,23 @@
         @endif
 
         @if (in_array($activeRole, ['super admin']))
-            {{-- Master Data --}}
             @php
-                $isMasterActive = request()->routeIs('view-jabatan') || request()->routeIs('view-divisi') || request()->routeIs('view-role');
+                $isMasterActive =
+                    request()->routeIs('view-jabatan') ||
+                    request()->routeIs('view-divisi') ||
+                    request()->routeIs('view-role');
             @endphp
 
             <ul x-data="{
-                openMenu: localStorage.getItem('openMenuMasterData') || '',
+                openMenu: {{ $isMasterActive ? "'masterData'" : "''" }},
                 toggleMenu(menu) {
-                    if (this.openMenu === menu) {
-                        this.openMenu = '';
-                        localStorage.removeItem('openMenuMasterData');
-                    } else {
-                        this.openMenu = menu;
-                        localStorage.setItem('openMenuMasterData', menu);
-                    }
-                },
-                init() {
-                    if (!this.openMenu && '{{ $isMasterActive }}' === '1') {
-                        this.openMenu = 'masterData';
-                        localStorage.setItem('openMenuMasterData', 'masterData');
-                    }
+                    this.openMenu = this.openMenu === menu ? '' : menu;
                 }
-            }" x-init="init()">
+            }">
                 <li class="relative px-6 py-3">
                     <button
-                        class="inline-flex items-center justify-between w-full text-sm  transition-colors duration-150
-        {{ $isMasterActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }}"
+                        class="inline-flex items-center justify-between w-full text-sm transition-colors duration-150
+                {{ $isMasterActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }} focus:outline-none"
                         @click="toggleMenu('masterData')">
                         <span class="inline-flex items-center">
                             <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -71,7 +64,6 @@
                                 <path
                                     d="M12 20.25c2.685 0 5.19-.586 7.078-1.609a8.282 8.282 0 0 0 1.897-1.384c.016.121.025.244.025.368 0 2.692-4.03 4.875-9 4.875s-9-2.183-9-4.875c0-.124.009-.247.025-.368a8.284 8.284 0 0 0 1.897 1.384C6.809 19.664 9.315 20.25 12 20.25Z" />
                             </svg>
-
                             <span class="ml-4">Master Data</span>
                         </span>
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -81,45 +73,42 @@
                         </svg>
                     </button>
 
-                    <template x-if="openMenu === 'masterData'">
-                        <ul x-transition:enter="transition-all duration-500 ease-in-out"
-                            x-transition:enter-start="opacity-0 max-h-0 scale-95"
-                            x-transition:enter-end="opacity-100 max-h-96 scale-100"
-                            x-transition:leave="transition-all duration-400 ease-in"
-                            x-transition:leave-start="opacity-100 max-h-96 scale-100"
-                            x-transition:leave-end="opacity-0 max-h-0 scale-95"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                            aria-label="submenu"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900">
+                    <ul x-cloak x-show="openMenu === 'masterData'"
+                        x-transition:enter="transition-all duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 max-h-0 scale-95"
+                        x-transition:enter-end="opacity-100 max-h-96 scale-100"
+                        x-transition:leave="transition-all duration-200 ease-in"
+                        x-transition:leave-start="opacity-100 max-h-96 scale-100"
+                        x-transition:leave-end="opacity-0 max-h-0 scale-95"
+                        class="p-2 mt-2 space-y-2 text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
+                        style="overflow: hidden;" aria-label="submenu">
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-jabatan') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-jabatan'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-jabatan') }}">Kelola Jabatan</a>
+                        </li>
 
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-jabatan') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-jabatan'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-jabatan') }}">Kelola Jabatan</a>
-                            </li>
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-divisi') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-divisi'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-divisi') }}">Kelola Divisi</a>
+                        </li>
 
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-divisi') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-divisi'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-divisi') }}">Kelola Divisi</a>
-                            </li>
-
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-role') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-role'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="#">Kelola Role</a>
-                            </li>
-                        </ul>
-                    </template>
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-role') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-role'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="">Kelola Role</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         @endif
@@ -140,27 +129,15 @@
             @endphp
 
             <ul x-data="{
-                openMenu: localStorage.getItem('openMenu') || '',
+                openMenu: '{{ $isKepegawaianActive ? 'kepegawaian' : '' }}',
                 toggleMenu(menu) {
-                    if (this.openMenu === menu) {
-                        this.openMenu = '';
-                        localStorage.removeItem('openMenu');
-                    } else {
-                        this.openMenu = menu;
-                        localStorage.setItem('openMenu', menu);
-                    }
-                },
-                init() {
-                    if (!this.openMenu && '{{ $isKepegawaianActive }}' === '1') {
-                        this.openMenu = 'kepegawaian';
-                        localStorage.setItem('openMenu', 'kepegawaian');
-                    }
+                    this.openMenu = this.openMenu === menu ? '' : menu;
                 }
-            }" x-init="init()">
+            }">
                 <li class="relative px-6 py-3">
                     <button
-                        class="inline-flex items-center justify-between w-full text-sm  transition-colors duration-150
-        {{ $isKepegawaianActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }}"
+                        class="inline-flex items-center justify-between w-full text-sm transition-colors duration-150
+                {{ $isKepegawaianActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }} focus:outline-none"
                         @click="toggleMenu('kepegawaian')" aria-haspopup="true">
                         <span class="inline-flex items-center">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -170,61 +147,57 @@
                             </svg>
                             <span class="ml-4">Kepegawaian</span>
                         </span>
-                        <svg class="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                                 clip-rule="evenodd" />
                         </svg>
                     </button>
 
-                    <template x-if="openMenu === 'kepegawaian'">
-                        <ul x-transition:enter="transition-all duration-500 ease-in-out"
-                            x-transition:enter-start="opacity-0 max-h-0 scale-95"
-                            x-transition:enter-end="opacity-100 max-h-96 scale-100"
-                            x-transition:leave="transition-all duration-400 ease-in"
-                            x-transition:leave-start="opacity-100 max-h-96 scale-100"
-                            x-transition:leave-end="opacity-0 max-h-0 scale-95"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                            aria-label="submenu">
+                    <ul x-cloak x-show="openMenu === 'kepegawaian'"
+                        x-transition:enter="transition-all duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 max-h-0 scale-95"
+                        x-transition:enter-end="opacity-100 max-h-96 scale-100"
+                        x-transition:leave="transition-all duration-200 ease-in"
+                        x-transition:leave-start="opacity-100 max-h-96 scale-100"
+                        x-transition:leave-end="opacity-0 max-h-0 scale-95"
+                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
+                        style="overflow: hidden;" aria-label="submenu">
 
-                            {{-- Menu Pegawai --}}
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-pegawai') || request()->routeIs('tambah-view-pegawai') || request()->routeIs('edit-view-pegawai') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-pegawai') ||
-                                        request()->routeIs('tambah-view-pegawai') ||
-                                        request()->routeIs('edit-view-pegawai'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-pegawai') }}">Data Pegawai</a>
-                            </li>
+                        {{-- Menu Pegawai --}}
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-pegawai') || request()->routeIs('tambah-view-pegawai') || request()->routeIs('edit-view-pegawai') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-pegawai') ||
+                                    request()->routeIs('tambah-view-pegawai') ||
+                                    request()->routeIs('edit-view-pegawai'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-pegawai') }}">Data Pegawai</a>
+                        </li>
 
-                            {{-- Menu Keluarga --}}
-                            {{-- <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-keluarga') || request()->routeIs('tambah-view-keluarga') || request()->routeIs('edit-view-keluarga') || request()->routeIs('detail-view-keluarga') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-keluarga') ||
-                                        request()->routeIs('tambah-view-keluarga') ||
-                                        request()->routeIs('edit-view-keluarga') ||
-                                        request()->routeIs('detail-view-keluarga'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-keluarga') }}">Data Keluarga</a>
-                            </li> --}}
+                        {{-- Menu Absensi --}}
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-rekap-absensi') }}">Rekap Absensi</a>
+                        </li>
 
-                            {{-- Menu Absensi --}}
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-rekap-absensi') }}">Rekap
-                                    Absensi</a>
-                            </li>
+                        {{-- Jika ingin aktifkan kembali menu keluarga, tinggal hapus komentar di bawah --}}
+                        {{-- 
+                <li
+                    class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-keluarga') || request()->routeIs('tambah-view-keluarga') || request()->routeIs('edit-view-keluarga') || request()->routeIs('detail-view-keluarga') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                    @if (request()->routeIs('view-keluarga') || request()->routeIs('tambah-view-keluarga') || request()->routeIs('edit-view-keluarga') || request()->routeIs('detail-view-keluarga'))
+                        <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md" aria-hidden="true"></span>
+                    @endif
+                    <a class="block w-full pl-4" href="{{ route('view-keluarga') }}">Data Keluarga</a>
+                </li>
+                --}}
 
-                        </ul>
-                    </template>
+                    </ul>
                 </li>
             </ul>
         @endif
@@ -238,29 +211,12 @@
                     request()->routeIs('view-laporan');
             @endphp
 
-            <ul x-data="{
-                openMenu: localStorage.getItem('openMenuKeuangan') || '',
-                toggleMenu(menu) {
-                    if (this.openMenu === menu) {
-                        this.openMenu = '';
-                        localStorage.removeItem('openMenuKeuangan');
-                    } else {
-                        this.openMenu = menu;
-                        localStorage.setItem('openMenuKeuangan', menu);
-                    }
-                },
-                init() {
-                    if (!this.openMenu && '{{ $isKeuanganActive }}' === '1') {
-                        this.openMenu = 'keuangan';
-                        localStorage.setItem('openMenuKeuangan', 'keuangan');
-                    }
-                }
-            }" x-init="init()">
+            <ul x-data="{ openMenu: '{{ $isKeuanganActive ? 'keuangan' : '' }}' }">
                 <li class="relative px-6 py-3">
                     <button
-                        class="inline-flex items-center justify-between w-full text-sm  transition-colors duration-150
-        {{ $isKeuanganActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }}"
-                        @click="toggleMenu('keuangan')">
+                        class="inline-flex items-center justify-between w-full text-sm transition-colors duration-150
+                {{ $isKeuanganActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }} focus:outline-none"
+                        @click="openMenu === 'keuangan' ? openMenu = '' : openMenu = 'keuangan'">
                         <span class="inline-flex items-center">
                             <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                                 <path d="M12 7.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" />
@@ -270,7 +226,6 @@
                                 <path
                                     d="M2.25 18a.75.75 0 0 0 0 1.5c5.4 0 10.63.722 15.6 2.075 1.19.324 2.4-.558 2.4-1.82V18.75a.75.75 0 0 0-.75-.75H2.25Z" />
                             </svg>
-
                             <span class="ml-4">Keuangan</span>
                         </span>
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -288,32 +243,41 @@
                             x-transition:leave-start="opacity-100 max-h-96 scale-100"
                             x-transition:leave-end="opacity-0 max-h-0 scale-95"
                             class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                            aria-label="submenu"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900">
+                            aria-label="submenu">
+
+                            {{-- Kelola Kategori --}}
                             <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-kategori') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                                class="relative px-2 py-1 transition-colors duration-150 
+                        {{ request()->routeIs('view-kategori') ? 'text-blue-500' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
                                 @if (request()->routeIs('view-kategori'))
                                     <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
                                         aria-hidden="true"></span>
                                 @endif
                                 <a class="block w-full pl-4" href="{{ route('view-kategori') }}">Kelola Kategori</a>
                             </li>
+
+                            {{-- Data Transaksi --}}
                             <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-transaksi') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                                class="relative px-2 py-1 transition-colors duration-150 
+                        {{ request()->routeIs('view-transaksi') ? 'text-blue-500' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
                                 @if (request()->routeIs('view-transaksi'))
                                     <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
                                         aria-hidden="true"></span>
                                 @endif
                                 <a class="block w-full pl-4" href="{{ route('view-transaksi') }}">Data Transaksi</a>
                             </li>
+
+                            {{-- Laporan Transaksi --}}
                             <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-laporan') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                                class="relative px-2 py-1 transition-colors duration-150 
+                        {{ request()->routeIs('view-laporan') ? 'text-blue-500' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
                                 @if (request()->routeIs('view-laporan'))
                                     <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
                                         aria-hidden="true"></span>
                                 @endif
                                 <a class="block w-full pl-4" href="{{ route('view-laporan') }}">Laporan Transaksi</a>
                             </li>
+
                         </ul>
                     </template>
                 </li>
@@ -414,7 +378,7 @@
     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
     x-transition:leave="transition ease-in-out duration-150" x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"></div>
+    class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center md:hidden"></div>
 <aside
     class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto no-scrollbar bg-white dark:bg-gray-800 md:hidden"
     x-show="isSideMenuOpen" x-transition:enter="transition ease-in-out duration-150"
@@ -452,33 +416,23 @@
         @endif
 
         @if (in_array($activeRole, ['super admin']))
-            {{-- Master Data --}}
             @php
-                $isMasterActive = request()->routeIs('view-jabatan');
+                $isMasterActive =
+                    request()->routeIs('view-jabatan') ||
+                    request()->routeIs('view-divisi') ||
+                    request()->routeIs('view-role');
             @endphp
 
             <ul x-data="{
-                openMenu: localStorage.getItem('openMenuMasterData') || '',
+                openMenu: {{ $isMasterActive ? "'masterData'" : "''" }},
                 toggleMenu(menu) {
-                    if (this.openMenu === menu) {
-                        this.openMenu = '';
-                        localStorage.removeItem('openMenuMasterData');
-                    } else {
-                        this.openMenu = menu;
-                        localStorage.setItem('openMenuMasterData', menu);
-                    }
-                },
-                init() {
-                    if (!this.openMenu && '{{ $isMasterActive }}' === '1') {
-                        this.openMenu = 'masterData';
-                        localStorage.setItem('openMenuMasterData', 'masterData');
-                    }
+                    this.openMenu = this.openMenu === menu ? '' : menu;
                 }
-            }" x-init="init()">
+            }">
                 <li class="relative px-6 py-3">
                     <button
-                        class="inline-flex items-center justify-between w-full text-sm  transition-colors duration-150
-        {{ $isMasterActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }}"
+                        class="inline-flex items-center justify-between w-full text-sm transition-colors duration-150
+                {{ $isMasterActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }} focus:outline-none"
                         @click="toggleMenu('masterData')">
                         <span class="inline-flex items-center">
                             <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -491,7 +445,6 @@
                                 <path
                                     d="M12 20.25c2.685 0 5.19-.586 7.078-1.609a8.282 8.282 0 0 0 1.897-1.384c.016.121.025.244.025.368 0 2.692-4.03 4.875-9 4.875s-9-2.183-9-4.875c0-.124.009-.247.025-.368a8.284 8.284 0 0 0 1.897 1.384C6.809 19.664 9.315 20.25 12 20.25Z" />
                             </svg>
-
                             <span class="ml-4">Master Data</span>
                         </span>
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -501,27 +454,42 @@
                         </svg>
                     </button>
 
-                    <template x-if="openMenu === 'masterData'">
-                        <ul x-transition:enter="transition-all duration-500 ease-in-out"
-                            x-transition:enter-start="opacity-0 max-h-0 scale-95"
-                            x-transition:enter-end="opacity-100 max-h-96 scale-100"
-                            x-transition:leave="transition-all duration-400 ease-in"
-                            x-transition:leave-start="opacity-100 max-h-96 scale-100"
-                            x-transition:leave-end="opacity-0 max-h-0 scale-95"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                            aria-label="submenu"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900">
+                    <ul x-cloak x-show="openMenu === 'masterData'"
+                        x-transition:enter="transition-all duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 max-h-0 scale-95"
+                        x-transition:enter-end="opacity-100 max-h-96 scale-100"
+                        x-transition:leave="transition-all duration-200 ease-in"
+                        x-transition:leave-start="opacity-100 max-h-96 scale-100"
+                        x-transition:leave-end="opacity-0 max-h-0 scale-95"
+                        class="p-2 mt-2 space-y-2 text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
+                        style="overflow: hidden;" aria-label="submenu">
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-jabatan') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-jabatan'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-jabatan') }}">Kelola Jabatan</a>
+                        </li>
 
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-jabatan') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-jabatan'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-jabatan') }}">Kelola Jabatan</a>
-                            </li>
-                        </ul>
-                    </template>
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-divisi') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-divisi'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-divisi') }}">Kelola Divisi</a>
+                        </li>
+
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-role') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-role'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="">Kelola Role</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         @endif
@@ -542,27 +510,15 @@
             @endphp
 
             <ul x-data="{
-                openMenu: localStorage.getItem('openMenu') || '',
+                openMenu: '{{ $isKepegawaianActive ? 'kepegawaian' : '' }}',
                 toggleMenu(menu) {
-                    if (this.openMenu === menu) {
-                        this.openMenu = '';
-                        localStorage.removeItem('openMenu');
-                    } else {
-                        this.openMenu = menu;
-                        localStorage.setItem('openMenu', menu);
-                    }
-                },
-                init() {
-                    if (!this.openMenu && '{{ $isKepegawaianActive }}' === '1') {
-                        this.openMenu = 'kepegawaian';
-                        localStorage.setItem('openMenu', 'kepegawaian');
-                    }
+                    this.openMenu = this.openMenu === menu ? '' : menu;
                 }
-            }" x-init="init()">
+            }">
                 <li class="relative px-6 py-3">
                     <button
-                        class="inline-flex items-center justify-between w-full text-sm  transition-colors duration-150
-        {{ $isKepegawaianActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }}"
+                        class="inline-flex items-center justify-between w-full text-sm transition-colors duration-150
+                {{ $isKepegawaianActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }} focus:outline-none"
                         @click="toggleMenu('kepegawaian')" aria-haspopup="true">
                         <span class="inline-flex items-center">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -572,61 +528,57 @@
                             </svg>
                             <span class="ml-4">Kepegawaian</span>
                         </span>
-                        <svg class="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
                                 d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                                 clip-rule="evenodd" />
                         </svg>
                     </button>
 
-                    <template x-if="openMenu === 'kepegawaian'">
-                        <ul x-transition:enter="transition-all duration-500 ease-in-out"
-                            x-transition:enter-start="opacity-0 max-h-0 scale-95"
-                            x-transition:enter-end="opacity-100 max-h-96 scale-100"
-                            x-transition:leave="transition-all duration-400 ease-in"
-                            x-transition:leave-start="opacity-100 max-h-96 scale-100"
-                            x-transition:leave-end="opacity-0 max-h-0 scale-95"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                            aria-label="submenu">
+                    <ul x-cloak x-show="openMenu === 'kepegawaian'"
+                        x-transition:enter="transition-all duration-300 ease-out"
+                        x-transition:enter-start="opacity-0 max-h-0 scale-95"
+                        x-transition:enter-end="opacity-100 max-h-96 scale-100"
+                        x-transition:leave="transition-all duration-200 ease-in"
+                        x-transition:leave-start="opacity-100 max-h-96 scale-100"
+                        x-transition:leave-end="opacity-0 max-h-0 scale-95"
+                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
+                        style="overflow: hidden;" aria-label="submenu">
 
-                            {{-- Menu Pegawai --}}
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-pegawai') || request()->routeIs('tambah-view-pegawai') || request()->routeIs('edit-view-pegawai') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-pegawai') ||
-                                        request()->routeIs('tambah-view-pegawai') ||
-                                        request()->routeIs('edit-view-pegawai'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-pegawai') }}">Data Pegawai</a>
-                            </li>
+                        {{-- Menu Pegawai --}}
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-pegawai') || request()->routeIs('tambah-view-pegawai') || request()->routeIs('edit-view-pegawai') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-pegawai') ||
+                                    request()->routeIs('tambah-view-pegawai') ||
+                                    request()->routeIs('edit-view-pegawai'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-pegawai') }}">Data Pegawai</a>
+                        </li>
 
-                            {{-- Menu Keluarga --}}
-                            {{-- <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-keluarga') || request()->routeIs('tambah-view-keluarga') || request()->routeIs('edit-view-keluarga') || request()->routeIs('detail-view-keluarga') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-keluarga') ||
-                                        request()->routeIs('tambah-view-keluarga') ||
-                                        request()->routeIs('edit-view-keluarga') ||
-                                        request()->routeIs('detail-view-keluarga'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-keluarga') }}">Data Keluarga</a>
-                            </li> --}}
+                        {{-- Menu Absensi --}}
+                        <li
+                            class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                            @if (request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail'))
+                                <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
+                                    aria-hidden="true"></span>
+                            @endif
+                            <a class="block w-full pl-4" href="{{ route('view-rekap-absensi') }}">Rekap Absensi</a>
+                        </li>
 
-                            {{-- Menu Absensi --}}
-                            <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
-                                @if (request()->routeIs('view-rekap-absensi') || request()->routeIs('view-rekap-detail'))
-                                    <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
-                                        aria-hidden="true"></span>
-                                @endif
-                                <a class="block w-full pl-4" href="{{ route('view-rekap-absensi') }}">Rekap
-                                    Absensi</a>
-                            </li>
+                        {{-- Jika ingin aktifkan kembali menu keluarga, tinggal hapus komentar di bawah --}}
+                        {{-- 
+                <li
+                    class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-keluarga') || request()->routeIs('tambah-view-keluarga') || request()->routeIs('edit-view-keluarga') || request()->routeIs('detail-view-keluarga') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                    @if (request()->routeIs('view-keluarga') || request()->routeIs('tambah-view-keluarga') || request()->routeIs('edit-view-keluarga') || request()->routeIs('detail-view-keluarga'))
+                        <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md" aria-hidden="true"></span>
+                    @endif
+                    <a class="block w-full pl-4" href="{{ route('view-keluarga') }}">Data Keluarga</a>
+                </li>
+                --}}
 
-                        </ul>
-                    </template>
+                    </ul>
                 </li>
             </ul>
         @endif
@@ -640,29 +592,12 @@
                     request()->routeIs('view-laporan');
             @endphp
 
-            <ul x-data="{
-                openMenu: localStorage.getItem('openMenuKeuangan') || '',
-                toggleMenu(menu) {
-                    if (this.openMenu === menu) {
-                        this.openMenu = '';
-                        localStorage.removeItem('openMenuKeuangan');
-                    } else {
-                        this.openMenu = menu;
-                        localStorage.setItem('openMenuKeuangan', menu);
-                    }
-                },
-                init() {
-                    if (!this.openMenu && '{{ $isKeuanganActive }}' === '1') {
-                        this.openMenu = 'keuangan';
-                        localStorage.setItem('openMenuKeuangan', 'keuangan');
-                    }
-                }
-            }" x-init="init()">
+            <ul x-data="{ openMenu: '{{ $isKeuanganActive ? 'keuangan' : '' }}' }">
                 <li class="relative px-6 py-3">
                     <button
-                        class="inline-flex items-center justify-between w-full text-sm  transition-colors duration-150
-        {{ $isKeuanganActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }}"
-                        @click="toggleMenu('keuangan')">
+                        class="inline-flex items-center justify-between w-full text-sm transition-colors duration-150
+                {{ $isKeuanganActive ? 'text-blue-500 dark:text-blue-400' : 'text-gray-800 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-100' }} focus:outline-none"
+                        @click="openMenu === 'keuangan' ? openMenu = '' : openMenu = 'keuangan'">
                         <span class="inline-flex items-center">
                             <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                                 <path d="M12 7.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" />
@@ -672,7 +607,6 @@
                                 <path
                                     d="M2.25 18a.75.75 0 0 0 0 1.5c5.4 0 10.63.722 15.6 2.075 1.19.324 2.4-.558 2.4-1.82V18.75a.75.75 0 0 0-.75-.75H2.25Z" />
                             </svg>
-
                             <span class="ml-4">Keuangan</span>
                         </span>
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -690,32 +624,41 @@
                             x-transition:leave-start="opacity-100 max-h-96 scale-100"
                             x-transition:leave-end="opacity-0 max-h-0 scale-95"
                             class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                            aria-label="submenu"
-                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900">
+                            aria-label="submenu">
+
+                            {{-- Kelola Kategori --}}
                             <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-kategori') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                                class="relative px-2 py-1 transition-colors duration-150 
+                        {{ request()->routeIs('view-kategori') ? 'text-blue-500' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
                                 @if (request()->routeIs('view-kategori'))
                                     <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
                                         aria-hidden="true"></span>
                                 @endif
                                 <a class="block w-full pl-4" href="{{ route('view-kategori') }}">Kelola Kategori</a>
                             </li>
+
+                            {{-- Data Transaksi --}}
                             <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-transaksi') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                                class="relative px-2 py-1 transition-colors duration-150 
+                        {{ request()->routeIs('view-transaksi') ? 'text-blue-500' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
                                 @if (request()->routeIs('view-transaksi'))
                                     <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
                                         aria-hidden="true"></span>
                                 @endif
                                 <a class="block w-full pl-4" href="{{ route('view-transaksi') }}">Data Transaksi</a>
                             </li>
+
+                            {{-- Laporan Transaksi --}}
                             <li
-                                class="relative px-2 py-1 transition-colors duration-150 {{ request()->routeIs('view-laporan') ? 'text-blue-500 ' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
+                                class="relative px-2 py-1 transition-colors duration-150 
+                        {{ request()->routeIs('view-laporan') ? 'text-blue-500' : 'hover:text-gray-800 dark:hover:text-gray-200' }}">
                                 @if (request()->routeIs('view-laporan'))
                                     <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-md rounded-br-md"
                                         aria-hidden="true"></span>
                                 @endif
                                 <a class="block w-full pl-4" href="{{ route('view-laporan') }}">Laporan Transaksi</a>
                             </li>
+
                         </ul>
                     </template>
                 </li>

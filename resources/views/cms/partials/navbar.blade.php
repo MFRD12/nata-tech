@@ -1,7 +1,17 @@
 <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-    <div class="container flex items-center justify-between h-full px-6 mx-auto text-blue-500 dark:text-purple-300">
+    <div class="flex items-center justify-between w-full h-full px-6 text-blue-500 dark:text-purple-300">
+
+        <button class="p-1 mr-5 -ml-1 rounded-md hidden md:block focus:outline-none"
+            @click="toggleDesktopSidebar" aria-label="Menu">
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                    clip-rule="evenodd"></path>
+            </svg>
+        </button>
+
         <!-- Mobile hamburger -->
-        <button class="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple"
+        <button class="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none"
             @click="toggleSideMenu" aria-label="Menu">
             <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd"
@@ -11,7 +21,7 @@
         </button>
 
         <!-- Date & Time -->
-        <div class="flex justify-center flex-1 lg:mr-32">
+        <div class="flex justify-center flex-1">
             <div class="relative w-full max-w-xl mr-6 text-center">
                 <div x-data="timeNow()" x-init="init()"
                     class="text-gray-700 dark:text-gray-200 font-semibold text-sm md:text-base">
@@ -27,7 +37,7 @@
         <ul class="flex items-center flex-shrink-0 space-x-6">
             <!-- Theme toggler -->
             <li class="flex">
-                <button class="rounded-md focus:outline-none focus:shadow-outline-purple" @click="toggleTheme"
+                <button class="rounded-md focus:outline-none" @click="toggleTheme"
                     aria-label="Toggle color mode">
                     <template x-if="!dark">
                         <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
@@ -141,8 +151,8 @@
                             <li class="flex">
                                 <button type="submit"
                                     class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                                    <svg fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-4 h-4 mr-2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                                     </svg>

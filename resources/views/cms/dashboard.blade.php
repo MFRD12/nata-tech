@@ -1,5 +1,10 @@
 <x-app-layout>
     @section('title', 'Dashboard')
+
+    @if (session('error'))
+        <x-modal-error :message="session('error')" title="Akses Ditolak" type="error" closeRoute="view-kategori" />
+    @endif
+    
     @php
         $activeRole = session('active_role');
     @endphp
@@ -7,19 +12,6 @@
         <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
             Dashboard
         </h2>
-        {{-- <!-- CTA -->
-    <a class="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-blue-100 bg-blue-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple"
-      href="">
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
-          </path>
-        </svg>
-        <span>Star this project on GitHub</span>
-      </div>
-      <span>View more &RightArrow;</span>
-    </a> --}}
 
         @if (in_array($activeRole, ['super admin', 'hrd']))
             {{-- Kepegawaian --}}
@@ -153,44 +145,140 @@
             Grafik
         </h2>
         <div class="grid gap-6 mb-8 md:grid-cols-2">
-            <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-                <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                    Revenue
-                </h4>
-                <canvas id="pie"></canvas>
-                <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
-                    <!-- Chart legend -->
-                    <div class="flex items-center">
-                        <span class="inline-block w-3 h-3 mr-1 bg-blue-500 rounded-full"></span>
-                        <span>Shirts</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="inline-block w-3 h-3 mr-1 bg-teal-600 rounded-full"></span>
-                        <span>Shoes</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"></span>
-                        <span>Bags</span>
+            @if (in_array($activeRole, ['super admin', 'hrd']))
+                <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+                    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+                        Statistik Absensi Bulan {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+                    </h4>
+                    <div class="relative h-72">
+                        <canvas id="pie-absensi" style="height: 300px;"
+                            data-absensi='@json($dataAbsensiPie)'></canvas>
                     </div>
                 </div>
-            </div>
-            <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-                <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                    Traffic
-                </h4>
-                <canvas id="line"></canvas>
-                <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
-                    <!-- Chart legend -->
-                    <div class="flex items-center">
-                        <span class="inline-block w-3 h-3 mr-1 bg-teal-600 rounded-full"></span>
-                        <span>Organic</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"></span>
-                        <span>Paid</span>
+
+                <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+                    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+                        Jumlah Pegawai per Divisi
+                    </h4>
+                    <div class="relative h-72">
+                        <canvas id="chartDivisi" style="height: 300px;" data-labels='@json($divisiLabels)'
+                            data-counts='@json($divisiCounts)'></canvas>
                     </div>
                 </div>
-            </div>
+            @endif
+
+            @if (in_array($activeRole, ['super admin', 'keuangan']))
+                {{-- grafil bar chart pemasukan dan pengeluaran --}}
+                <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+                    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+                        Grafik Keuangan Bulanan Tahun {{ $year_bar }}
+                    </h4>
+                    <!-- Dropdown Tahun -->
+                    <form method="GET" action="{{ route('dashboard') }}" class="mb-4">
+                        <div class="flex items-center gap-2">
+                            <label for="filter_tahun_bar" class="text-sm text-gray-700 dark:text-gray-300">Pilih
+                                Tahun:</label>
+                            <select name="filter_tahun_bar" id="filter_tahun_bar"
+                                class=" w-20 px-3 py-1 text-sm border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white dark:border-gray-600"
+                                onchange="this.form.submit()">
+                                @foreach ($tahunTersedia as $tahun)
+                                    <option value="{{ $tahun }}" {{ $year_bar == $tahun ? 'selected' : '' }}>
+                                        {{ $tahun }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+                    <!-- Bar Chart -->
+                    <canvas id="bars" data-labels='@json($bulanLabels)'
+                        data-pemasukan='@json($pemasukan)' data-pengeluaran='@json($pengeluaran)'
+                        data-tahun="{{ $year_bar }}"></canvas>
+                </div>
+
+                {{-- grafik line chart saldo --}}
+                <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+                    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+                        Grafik Keuangan Bulanan Tahun {{ $year_line }}
+                    </h4>
+                    <!-- Dropdown Tahun -->
+                    <form method="GET" action="{{ route('dashboard') }}" class="mb-4">
+                        <div class="flex items-center gap-2">
+                            <label for="filter_tahun_line" class="text-sm text-gray-700 dark:text-gray-300">Pilih
+                                Tahun:</label>
+                            <select name="filter_tahun_line" id="filter_tahun_line"
+                                class=" w-20 px-3 py-1 text-sm border rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white dark:border-gray-600"
+                                onchange="this.form.submit()">
+                                @foreach ($tahunTersedia as $tahun)
+                                    <option value="{{ $tahun }}" {{ $year_line == $tahun ? 'selected' : '' }}>
+                                        {{ $tahun }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+                    <!-- Line Chart -->
+                    <canvas id="saldoLine" data-labels='@json($saldoBulanLabels)'
+                        data-values='@json($saldoBulanValues)' data-tahun="{{ $year_line }}"></canvas>
+                </div>
         </div>
+
+        {{-- tabel --}}
+        <div class="flex justify-between items-center mb-4">
+            <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Transaksi Terbaru</h4>
+            <a href="{{ route('view-transaksi') }}" class="text-sm text-blue-600 hover:underline dark:text-blue-400">
+                Lihat Semua
+            </a>
+        </div>
+        <!-- Tabel -->
+        <div class="overflow-auto no-scrollbar rounded border border-gray-700">
+            <table class="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-700 text-center">
+                <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0 z-10">
+                    <tr class="text-gray-700 dark:text-gray-300">
+                        <th class="px-3 py-3 font-semibold">No</th>
+                        <th class="px-4 py-3 font-semibold">Tanggal</th>
+                        <th class="px-4 py-3 font-semibold">Nama Transaksi</th>
+                        <th class="px-4 py-3 font-semibold">Nominal</th>
+                        <th class="px-4 py-3 font-semibold">Kategori</th>
+                        <th class="px-3 py-3 font-semibold">Jenis</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse ($transaksiTerbaru as $transaksi)
+                        <tr
+                            class="hover:bg-gray-100 dark:hover:bg-gray-800 divide-x divide-gray-200 dark:divide-gray-700 transition-all duration-150">
+                            <td class="px-3 py-3 text-gray-800 dark:text-gray-200">
+                                {{ $loop->iteration }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                                {{ \Carbon\Carbon::parse($transaksi->tanggal)->translatedFormat('d M Y') }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">
+                                {{ $transaksi->nama_transaksi }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                                Rp {{ number_format($transaksi->jumlah, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">
+                                {{ $transaksi->kategori->name ?? '-' }}
+                            </td>
+                            <td class="px-3 py-3 text-gray-800 dark:text-gray-200">
+                                <span
+                                    class="inline-block px-2 py-1 rounded text-xs font-semibold
+                                {{ $transaksi->kategori->jenis === 'pemasukan'
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-700 dark:text-green-100'
+                                    : 'bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100' }}">
+                                    {{ ucfirst($transaksi->kategori->jenis) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-4 py-5 text-center text-gray-500 dark:text-gray-400">
+                                Tidak ada data Transaksi.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @endif
     </div>
 </x-app-layout>

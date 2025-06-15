@@ -36,12 +36,12 @@ class CheckActiveRole
 
         // Cek apakah user punya salah satu role
         if (!Auth::check() || !Auth::user()->hasAnyRole($rolesArray)) {
-            return redirect()->back()->with('error', 'Kamu Tidak Punya Akses Ke halaman tersebut.');
+            return redirect()->back()->with('error', 'Silakan login terlebih dahulu.');
         }
 
         // Cek session active_role harus ada dan termasuk roles yg diizinkan
         if (!$activeRole || !in_array($activeRole, $rolesArray)) {
-            return redirect()->back()->with('error', 'Kamu tidak punya akses dengan role saat ini.');
+            return redirect()->back()->with('error', 'Kamu tidak punya hak akses untuk halaman tersebut.');
         }
 
         return $next($request);

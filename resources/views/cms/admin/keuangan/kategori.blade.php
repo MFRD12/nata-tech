@@ -1,6 +1,6 @@
 <x-app-layout>
     @section('title', 'Kelola Kategori')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
 
             <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 tracking-tight">Kelola Kategori</h1>
@@ -10,7 +10,11 @@
             @endif
 
             @if (session('error'))
-                <x-modal-error :show="true" :message="session('error')" title="Akses Ditolak" closeRoute="view-kategori" />
+                <x-modal-error :message="session('error')" title="Akses Ditolak" type="error" closeRoute="view-kategori" />
+            @endif
+            
+            @if (session('error_hapus'))
+                <x-modal-error :show="true" :message="session('error_hapus')" title="Hapus Data Gagal" closeRoute="view-kategori" />
             @endif
 
             <div x-data="{
@@ -265,16 +269,7 @@
                                     </div>
 
                                     <div>
-                                        <form action="{{ route('hapus-kategori', $kategori->id) }}" method="POST"
-                                            class="inline-block"
-                                            onsubmit="return confirm('Yakin ingin menghapus kategori ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-xs font-medium shadow-sm">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <x-button-delete :route="route('hapus-kategori', $kategori->id)" :id="$kategori->id" />
                                     </div>
                                 </td>
                             </tr>

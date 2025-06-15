@@ -1,17 +1,6 @@
 <x-app-layout>
     @section('title', 'Riwayat Absensi')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="mb-6">
-            <a href="{{ route('view-absen-pegawai') }}"
-                class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Kembali
-            </a>
-        </div>
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
 
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 space-y-6">
 
@@ -45,7 +34,7 @@
                         <label for="tahun"
                             class="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">Tahun</label>
                         <select name="tahun" id="tahun"
-                            class="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-20 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             @foreach ($tahunList as $tahunItem)
                                 <option value="{{ $tahunItem }}" {{ $tahun == $tahunItem ? 'selected' : '' }}>
                                     {{ $tahunItem }}
@@ -113,7 +102,7 @@
                                         <span class="text-gray-400">-</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-2 capitalize">
+                                <td class="px-4 py-2 capitalize whitespace-nowrap">
                                     @php
                                         $color = match ($absen->status) {
                                             'hadir' => 'green',

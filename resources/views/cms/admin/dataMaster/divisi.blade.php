@@ -1,6 +1,6 @@
 <x-app-layout>
     @section('title', 'Kelola Divisi')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
 
             <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 tracking-tight">Kelola Divisi</h1>
@@ -164,17 +164,8 @@
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <form action="{{ route('hapus-divisi', $data->id) }}" method="POST"
-                                            class="inline-block"
-                                            onsubmit="return confirm('Yakin ingin menghapus divisi ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-xs font-medium shadow-sm">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                     <div>
+                                        <x-button-delete :route="route('hapus-divisi', $data->id)" :id="$data->id" />
                                     </div>
                                 </td>
                             </tr>

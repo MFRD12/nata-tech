@@ -1,5 +1,5 @@
 <x-guest-layout>
-    @section('title', 'Login - SIM')
+    @section('title', 'Login - SIM NATA')
     <!-- Session Status -->
     {{-- <x-auth-session-status class="mb-4" :status="session('status')" />
   </form> --}}
@@ -7,7 +7,7 @@
     @if (session('status'))
         <x-alert type="success" :message="session('status')" :duration="3000" />
     @endif
-    <div class="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
+    <div class="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800 my-6">
         <div class="flex flex-col overflow-y-auto md:flex-row">
             <div class="h-32 md:h-auto md:w-1/2">
                 {{-- Theme light img --}}

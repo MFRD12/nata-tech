@@ -1,6 +1,6 @@
 <x-app-layout>
     @section('title', 'Data Pegawai')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
 
             <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 tracking-tight">Data Pegawai</h1>

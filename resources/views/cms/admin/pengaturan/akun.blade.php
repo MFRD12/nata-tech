@@ -1,6 +1,6 @@
 <x-app-layout>
     @section('title', 'Pengaturan Akun')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
 
             <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 tracking-tight">Pengaturan Akun</h1>
@@ -63,7 +63,7 @@
 
                             <!-- Reset -->
                             @if (request('search') || request('role'))
-                                <a href="{{ route('view-akun',['perPage' => request('perPage', 10)]) }}"
+                                <a href="{{ route('view-akun', ['perPage' => request('perPage', 10)]) }}"
                                     class="inline-flex items-center justify-center bg-red-500 text-gray-200 hover:bg-red-600 px-4 py-2 rounded text-sm shadow-sm transition">
                                     Reset
                                 </a>
@@ -168,8 +168,8 @@
 
                             <div class="flex justify-end gap-3 mt-4">
                                 <button type="button" @click="showModal = false; clearInput()"
-                                    class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-700 transition">
-                                    Batal
+                                    class="px-4 py-2 bg-red-600 text-white hover:bg-red-400 dark:hover:bg-red-500 rounded transition">
+                                    <i class="fas fa-xmark"></i> Batal
                                 </button>
                                 <button type="submit"
                                     class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
@@ -367,8 +367,8 @@
                                                     <div class="flex justify-end gap-3 mt-4">
                                                         <button type="button"
                                                             @click="showModalEdit = false; clearEditError()"
-                                                            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-700 transition">
-                                                            Batal
+                                                            class="px-4 py-2 bg-red-600 text-white hover:bg-red-400 dark:hover:bg-red-500 rounded transition">
+                                                            <i class="fas fa-xmark"></i> Batal
                                                         </button>
                                                         <button type="submit"
                                                             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">

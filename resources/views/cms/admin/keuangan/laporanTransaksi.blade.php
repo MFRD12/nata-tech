@@ -5,7 +5,7 @@
         <x-modal-error :show="true" :message="session('error')" title="Akses Ditolak" closeRoute="view-laporan" />
     @endif
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">
